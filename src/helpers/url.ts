@@ -1,4 +1,4 @@
-import { isDate, isObject } from './util'
+import { isDate, isPlainObject } from './util'
 
 function encode(val: string): string {
   return encodeURIComponent(val)
@@ -18,6 +18,7 @@ export function buildURL(url: string, params?: any): string {
 
   const parts: string[] = []
 
+  // 遍历params
   Object.keys(params).forEach(key => {
     const val = params[key]
     if (val === null || typeof val === 'undefined') {
@@ -33,7 +34,7 @@ export function buildURL(url: string, params?: any): string {
     values.forEach((val: any) => {
       if (isDate(val)) {
         val = val.toISOString()
-      } else if (isObject(val)) {
+      } else if (isPlainObject(val)) {
         val = JSON.stringify(val)
       }
       parts.push(`${encode(key)}=${encode(val)}`)
@@ -42,12 +43,14 @@ export function buildURL(url: string, params?: any): string {
 
   let serializedParams = parts.join('&')
 
+  // 如果有参数
   if (serializedParams) {
+    // 如理带hash的情况
     const markIndex = url.indexOf('#')
     if (markIndex > -1) {
       url = url.slice(0, markIndex)
     }
-    url += (url.indexOf('?') > -1 ? '?' : '&') + serializedParams
+    url += (url.indexOf('?') > -1 ? '&' : '?') + serializedParams
   }
 
   return url
